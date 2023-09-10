@@ -4,7 +4,7 @@ import { EventCenter } from './EventCenter';
 export class FabricObject extends EventCenter {
   public type: string = 'object';
   /** 是否处于激活态，也就是是否被选中 */
-  public active: boolean = false;
+  public active: boolean = true;
   /** 是否可见 */
   public visible: boolean = true;
   /** 默认水平变换中心 left | right | center */
@@ -107,21 +107,22 @@ export class FabricObject extends EventCenter {
 
     if (this.stroke) {
       ctx.lineWidth = this.strokeWidth;
-      ctx.strokeStyle = this.stroke;
+      // ctx.strokeStyle = this.stroke;
+      ctx.strokeStyle = 'red';
     }
 
     if (this.fill) {
       ctx.fillStyle = this.fill;
     }
 
+    this._render(ctx);
+
     if (this.active) {
       // 绘制激活物体边框
-      this.drawBorders(ctx);
+      this.drawBoundingBox(ctx);
       // 绘制激活物体四周的控制点
       this.drawControls(ctx);
     }
-
-    this._render(ctx);
     ctx.restore();
   }
 
@@ -134,7 +135,47 @@ export class FabricObject extends EventCenter {
   // 由子类复写
   protected _render(ctx: CanvasRenderingContext2D) {}
 
-  private drawBorders(ctx: CanvasRenderingContext2D) {}
+  private drawBoundingBox(ctx: CanvasRenderingContext2D) {
+    let padding = this.padding,
+      padding2 = padding * 2,
+      strokeWidth = 1;
+    ctx.save();
+
+    ctx.globalAlpha = this.isMoving ? 0.5 : 1;
+    ctx.strokeStyle = this.borderColor;
+    ctx.lineWidth = this.strokeWidth;
+
+    ctx.scale(1 / this.scaleX, 1 / this.scaleY);
+
+    let w = this.getWidth(),
+      h = this.getHeight();
+
+    ctx.strokeRect(
+      this.left - padding - strokeWidth / 2,
+      this.top - padding - strokeWidth / 2,
+      w + padding2 + strokeWidth,
+      h + padding2 + strokeWidth,
+    );
+
+    if (this.hasRotatingPoint && this.hasControls) {
+      let rotateHeight = (-h - strokeWidth - padding * 2) / 2;
+      ctx.beginPath();
+      ctx.moveTo(0, rotateHeight);
+      ctx.lineTo(0, rotateHeight - this.rotatingPointOffset); // rotatingPointOffset 是旋转控制点到边框的距离
+      ctx.closePath();
+      ctx.stroke();
+    }
+
+    ctx.restore();
+    return this;
+  }
 
   private drawControls(ctx: CanvasRenderingContext2D) {}
+
+  public getWidth(): number {
+    return this.width * this.scaleX;
+  }
+  public getHeight(): number {
+    return this.height * this.scaleY;
+  }
 }

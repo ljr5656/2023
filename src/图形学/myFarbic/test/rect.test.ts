@@ -18,7 +18,8 @@ const rect = new Rect({
   left: 10,
   width: 100,
   height: 100,
-  stroke: 'red',
+  stroke: 'black',
+  fill: 'white',
 });
 
 myFarbic.add(rect);
