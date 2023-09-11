@@ -149,8 +149,8 @@ export class FabricObject extends EventCenter {
       h = this.getHeight();
 
     ctx.strokeRect(
-      -(w / 2) - padding - strokeWidth / 2,
-      -(h / 2) - padding - strokeWidth / 2,
+      -padding - strokeWidth / 2,
+      -padding - strokeWidth / 2,
       w + padding2 + strokeWidth,
       h + padding2 + strokeWidth,
     );
@@ -178,8 +178,8 @@ export class FabricObject extends EventCenter {
       boundingBoxControlFill: fill,
     } = this;
 
-    let left = -width / 2,
-      top = -height / 2,
+    let left = 0,
+      top = 0,
       size2 = size / 2,
       strokeWidth2 = strokeWidth / 2,
       sizeX = size / scaleX,
