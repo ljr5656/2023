@@ -13,7 +13,6 @@ export class Rect extends FabricObject {
     this.ry = options.ry || 0;
   }
   protected _render(ctx: CanvasRenderingContext2D) {
-    debugger;
     let rx = this.rx || 0,
       ry = this.ry || 0,
       x = 0,

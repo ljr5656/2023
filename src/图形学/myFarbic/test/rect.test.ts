@@ -23,3 +23,16 @@ const rect = new Rect({
 });
 
 myFarbic.add(rect);
+
+debugger;
+const rect2 = new Rect({
+  top: 100,
+  left: 100,
+  width: 100,
+  height: 100,
+  stroke: 'red',
+  fill: 'white',
+  scaleX: 2,
+  scaleY: 2,
+});
+myFarbic.add(rect2);

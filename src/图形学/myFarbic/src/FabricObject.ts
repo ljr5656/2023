@@ -260,6 +260,8 @@ export class FabricObject extends EventCenter {
       ctx.clearRect(x, y, sizeX, sizeY);
       ctx[methodName](x, y, sizeX, sizeY);
     }
+
+    ctx.restore();
   }
 
   public getWidth(): number {
