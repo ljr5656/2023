@@ -14,8 +14,8 @@ const myFarbic = new Canvas(canvas, {
 });
 
 const rect = new Rect({
-  top: 10,
-  left: 10,
+  top: 100,
+  left: 100,
   width: 100,
   height: 100,
   stroke: 'black',

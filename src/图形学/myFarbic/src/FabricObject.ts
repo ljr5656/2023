@@ -29,23 +29,22 @@ export class FabricObject extends EventCenter {
   public flipX: boolean = false;
   /** 上下镜像，比如反向拉伸控制点 */
   public flipY: boolean = false;
-  /** 选中态物体和边框之间的距离 */
-  public padding: number = 0;
+
   /** 物体缩放后的宽度 */
   public currentWidth: number = 0;
   /** 物体缩放后的高度 */
   public currentHeight: number = 0;
-  /** 激活态边框颜色 */
-  public borderColor: string = 'red';
-  /** 激活态控制点颜色 */
-  public cornerColor: string = 'red';
-  /** 物体默认填充颜色 */
+
+  public boundingBoxPadding: number = 5;
+  public boundingBoxBorderStroke: string = 'black';
+  public boundingBoxBorderWidth: number = 1;
+  public boundingBoxControlStroke: string = 'black';
+  public boundingBoxControlFill: string = 'white';
+  public boundingBoxControlSize: number = 5;
+  public boundingBoxControlMethod: string = 'strokeRect';
+
   public fill: string = 'rgb(0,0,0)';
-  /** 混合模式 globalCompositeOperation */
-  // public fillRule: string = 'source-over';
-  /** 物体默认描边颜色，默认无 */
   public stroke: string;
-  /** 物体默认描边宽度 */
   public strokeWidth: number = 1;
   /** 矩阵变换 */
   // public transformMatrix: number[];
@@ -56,7 +55,7 @@ export class FabricObject extends EventCenter {
   /** 是否有旋转控制点 */
   public hasRotatingPoint: boolean = true;
   /** 旋转控制点偏移量 */
-  public rotatingPointOffset: number = 40;
+  public rotatingPointOffset: number = 20;
   /** 移动的时候边框透明度 */
   public borderOpacityWhenMoving: number = 0.4;
   /** 物体是否在移动中 */
@@ -118,9 +117,7 @@ export class FabricObject extends EventCenter {
     this._render(ctx);
 
     if (this.active) {
-      // 绘制激活物体边框
       this.drawBoundingBox(ctx);
-      // 绘制激活物体四周的控制点
       this.drawControls(ctx);
     }
     ctx.restore();
@@ -135,15 +132,16 @@ export class FabricObject extends EventCenter {
   // 由子类复写
   protected _render(ctx: CanvasRenderingContext2D) {}
 
+  // 绘制包围盒
   private drawBoundingBox(ctx: CanvasRenderingContext2D) {
-    let padding = this.padding,
+    let padding = this.boundingBoxPadding,
       padding2 = padding * 2,
       strokeWidth = 1;
     ctx.save();
 
     ctx.globalAlpha = this.isMoving ? 0.5 : 1;
-    ctx.strokeStyle = this.borderColor;
-    ctx.lineWidth = this.strokeWidth;
+    ctx.strokeStyle = this.boundingBoxBorderStroke;
+    ctx.lineWidth = this.boundingBoxBorderWidth;
 
     ctx.scale(1 / this.scaleX, 1 / this.scaleY);
 
@@ -151,26 +149,118 @@ export class FabricObject extends EventCenter {
       h = this.getHeight();
 
     ctx.strokeRect(
-      this.left - padding - strokeWidth / 2,
-      this.top - padding - strokeWidth / 2,
+      -(w / 2) - padding - strokeWidth / 2,
+      -(h / 2) - padding - strokeWidth / 2,
       w + padding2 + strokeWidth,
       h + padding2 + strokeWidth,
     );
 
     if (this.hasRotatingPoint && this.hasControls) {
-      let rotateHeight = (-h - strokeWidth - padding * 2) / 2;
-      ctx.beginPath();
-      ctx.moveTo(0, rotateHeight);
-      ctx.lineTo(0, rotateHeight - this.rotatingPointOffset); // rotatingPointOffset 是旋转控制点到边框的距离
-      ctx.closePath();
-      ctx.stroke();
     }
 
     ctx.restore();
     return this;
   }
 
-  private drawControls(ctx: CanvasRenderingContext2D) {}
+  private drawControls(ctx: CanvasRenderingContext2D) {
+    if (!this.hasControls) return;
+
+    let {
+      boundingBoxControlSize: size,
+      strokeWidth,
+      width,
+      height,
+      scaleX,
+      scaleY,
+      boundingBoxPadding: padding,
+      boundingBoxControlMethod: methodName,
+      boundingBoxControlStroke: stroke,
+      boundingBoxControlFill: fill,
+    } = this;
+
+    let left = -width / 2,
+      top = -height / 2,
+      size2 = size / 2,
+      strokeWidth2 = strokeWidth / 2,
+      sizeX = size / scaleX,
+      sizeY = size / scaleY,
+      paddingX = padding / scaleX,
+      paddingY = padding / scaleY,
+      scaleOffsetY = size2 / scaleY,
+      scaleOffsetX = size2 / scaleX,
+      scaleOffsetSizeX = (size2 - size) / scaleX,
+      scaleOffsetSizeY = (size2 - size) / scaleY,
+      x = 0,
+      y = 0;
+
+    ctx.save();
+
+    ctx.lineWidth = this.borderWidth / Math.max(this.scaleX, this.scaleY);
+    ctx.globalAlpha = this.isMoving ? 0.5 : 1;
+    ctx.strokeStyle = stroke;
+    ctx.fillStyle = fill;
+
+    x = left - scaleOffsetX - strokeWidth2 - paddingX;
+    y = top - scaleOffsetY - strokeWidth2 - paddingY;
+    ctx.clearRect(x, y, sizeX, sizeY);
+    ctx[methodName](x, y, sizeX, sizeY);
+
+    // top-right
+    x = left + width - scaleOffsetX + strokeWidth2 + paddingX;
+    y = top - scaleOffsetY - strokeWidth2 - paddingY;
+    ctx.clearRect(x, y, sizeX, sizeY);
+    ctx[methodName](x, y, sizeX, sizeY);
+
+    // bottom-left
+    x = left - scaleOffsetX - strokeWidth2 - paddingX;
+    y = top + height + scaleOffsetSizeY + strokeWidth2 + paddingY;
+    ctx.clearRect(x, y, sizeX, sizeY);
+    ctx[methodName](x, y, sizeX, sizeY);
+
+    // bottom-right
+    x = left + width + scaleOffsetSizeX + strokeWidth2 + paddingX;
+    y = top + height + scaleOffsetSizeY + strokeWidth2 + paddingY;
+    ctx.clearRect(x, y, sizeX, sizeY);
+    ctx[methodName](x, y, sizeX, sizeY);
+
+    // middle-top
+    x = left + width / 2 - scaleOffsetX;
+    y = top - scaleOffsetY - strokeWidth2 - paddingY;
+    ctx.clearRect(x, y, sizeX, sizeY);
+    ctx[methodName](x, y, sizeX, sizeY);
+
+    // middle-bottom
+    x = left + width / 2 - scaleOffsetX;
+    y = top + height + scaleOffsetSizeY + strokeWidth2 + paddingY;
+    ctx.clearRect(x, y, sizeX, sizeY);
+    ctx[methodName](x, y, sizeX, sizeY);
+
+    // middle-right
+    x = left + width + scaleOffsetSizeX + strokeWidth2 + paddingX;
+    y = top + height / 2 - scaleOffsetY;
+    ctx.clearRect(x, y, sizeX, sizeY);
+    ctx[methodName](x, y, sizeX, sizeY);
+
+    // middle-left
+    x = left - scaleOffsetX - strokeWidth2 - paddingX;
+    y = top + height / 2 - scaleOffsetY;
+    ctx.clearRect(x, y, sizeX, sizeY);
+    ctx[methodName](x, y, sizeX, sizeY);
+
+    // 绘制旋转控制点
+    if (this.hasRotatingPoint) {
+      x = left + width / 2 - scaleOffsetX;
+      y =
+        top -
+        this.rotatingPointOffset / this.scaleY -
+        sizeY / 2 -
+        strokeWidth2 -
+        paddingY;
+
+      ctx.clearRect(x, y, sizeX, sizeY);
+      ctx[methodName](x, y, sizeX, sizeY);
+    }
+  }
 
   public getWidth(): number {
     return this.width * this.scaleX;

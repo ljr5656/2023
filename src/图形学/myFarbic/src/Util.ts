@@ -39,4 +39,11 @@ export class Util {
       height: height,
     };
   }
+
+  static addListener(element, eventName, handler) {
+    element.addEventListener(eventName, handler, false);
+  }
+  static removeListener(element, eventName, handler) {
+    element.removeEventListener(eventName, handler, false);
+  }
 }

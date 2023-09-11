@@ -27,8 +27,9 @@ export class Canvas {
 
   constructor(el: HTMLCanvasElement, options) {
     this._initStatic(el, options);
-    this._initInteractive();
+    this._initInteractive(el, options);
     this._createCacheCanvas();
+    this._initEvent();
   }
 
   private _initStatic(el: HTMLCanvasElement, options) {
@@ -45,8 +46,49 @@ export class Canvas {
     this.lowerCanvasEl.style.width = this.width + 'px';
     this.lowerCanvasEl.style.height = this.height + 'px';
   }
-  private _initInteractive() {}
+  private _initInteractive(el: HTMLCanvasElement, options) {
+    this.upperCanvasEl = el;
+    Util.addClass(el, 'upper-canvas');
+    this.contextContainer = el.getContext('2d') as CanvasRenderingContext2D;
+
+    for (let prop in options) {
+      this[prop] = options[prop];
+    }
+
+    this.width = +this.upperCanvasEl.width;
+    this.height = +this.upperCanvasEl.height;
+    this.upperCanvasEl.style.width = this.width + 'px';
+    this.upperCanvasEl.style.height = this.height + 'px';
+  }
   private _createCacheCanvas() {}
+
+  private _initEvent() {
+    Util.addListener(
+      this.upperCanvasEl,
+      'mousemove',
+      this._onMouseMove.bind(this),
+    );
+    Util.addListener(this.upperCanvasEl, 'mouseup', this._onMouseUp.bind(this));
+    Util.addListener(
+      this.upperCanvasEl,
+      'mousedown',
+      this._onMouseDown.bind(this),
+    );
+  }
+
+  private _onMouseMove(e: MouseEvent) {
+    e.preventDefault();
+    const target = this.findTarget(e);
+    if (target) {
+      this.upperCanvasEl.style.cursor = 'pointer';
+    } else {
+      this.upperCanvasEl.style.cursor = 'auto';
+    }
+  }
+
+  private _onMouseDown() {}
+
+  private _onMouseUp() {}
 
   add(...args): Canvas {
     this._objects.push(...args);
@@ -66,5 +108,31 @@ export class Canvas {
   clearContext(ctx: CanvasRenderingContext2D | undefined): Canvas {
     ctx && ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     return this;
+  }
+
+  findTarget(e: MouseEvent): FabricObject | undefined {
+    let target;
+    for (let i = this._objects.length - 1; i >= 0; i--) {
+      const object = this._objects[i];
+      if (object && this.containsPoint(e, object)) {
+        target = object;
+        break;
+      }
+    }
+    return target;
+  }
+
+  containsPoint(e: MouseEvent, object: FabricObject): boolean {
+    const { clientX, clientY } = e;
+    const { left, top, width, height } = object;
+    if (
+      clientX - this.upperCanvasEl.offsetLeft >= left &&
+      clientX - this.upperCanvasEl.offsetLeft <= left + width &&
+      clientY - this.upperCanvasEl.offsetHeight >= top &&
+      clientY - this.upperCanvasEl.offsetHeight <= top + height
+    ) {
+      return true;
+    }
+    return false;
   }
 }
