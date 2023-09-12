@@ -1,3 +1,4 @@
+import { FabricObject } from './shape/FabricObject';
 import { ClassPropsToOptions } from './type';
 import { Util } from './Util';
 
@@ -6,6 +7,7 @@ type ICanvasOptions = ClassPropsToOptions<Canvas, TCanvasoProps>;
 
 export class Canvas {
   public container: HTMLElement;
+  public options: ICanvasOptions;
   public width: number;
   public height: number;
 
@@ -16,6 +18,8 @@ export class Canvas {
   protected blCtx: CanvasRenderingContext2D; // 背景层ctx (暂时不需要)
   protected olCtx: CanvasRenderingContext2D; // 对象层ctx
   protected slCtx: CanvasRenderingContext2D; // 选择层ctx
+
+  private _objects: FabricObject[] = [];
 
   constructor(container: HTMLElement, options: ICanvasOptions) {
     this.container = container;
@@ -55,4 +59,14 @@ export class Canvas {
       userSelect: 'none',
     });
   }
+
+  public add(...args): Canvas {
+    this._objects.push(...args);
+    this.renderAll();
+    return this;
+  }
+
+  public renderAll() {}
+
+  private _draw(ctx: CanvasRenderingContext2D) {}
 }
