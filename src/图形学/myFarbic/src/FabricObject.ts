@@ -1,6 +1,7 @@
 import { Offset, Coords, Corner, IAnimationOption } from './interface';
 import { Util } from './Util';
 import { EventCenter } from './EventCenter';
+import { Point } from './Point';
 export class FabricObject extends EventCenter {
   public type: string = 'object';
   /** 是否处于激活态，也就是是否被选中 */
@@ -35,7 +36,7 @@ export class FabricObject extends EventCenter {
   /** 物体缩放后的高度 */
   public currentHeight: number = 0;
 
-  public boundingBoxPadding: number = 5;
+  public padding: number = 5;
   public boundingBoxBorderStroke: string = 'black';
   public boundingBoxBorderWidth: number = 1;
   public boundingBoxControlStroke: string = 'black';
@@ -133,8 +134,8 @@ export class FabricObject extends EventCenter {
   protected _render(ctx: CanvasRenderingContext2D) {}
 
   // 绘制包围盒
-  private drawBoundingBox(ctx: CanvasRenderingContext2D) {
-    let padding = this.boundingBoxPadding,
+  protected drawBoundingBox(ctx: CanvasRenderingContext2D) {
+    let padding = this.padding,
       padding2 = padding * 2,
       strokeWidth = 1;
     ctx.save();
@@ -162,7 +163,7 @@ export class FabricObject extends EventCenter {
     return this;
   }
 
-  private drawControls(ctx: CanvasRenderingContext2D) {
+  protected drawControls(ctx: CanvasRenderingContext2D) {
     if (!this.hasControls) return;
 
     let {
@@ -172,7 +173,7 @@ export class FabricObject extends EventCenter {
       height,
       scaleX,
       scaleY,
-      boundingBoxPadding: padding,
+      padding: padding,
       boundingBoxControlMethod: methodName,
       boundingBoxControlStroke: stroke,
       boundingBoxControlFill: fill,
@@ -269,5 +270,128 @@ export class FabricObject extends EventCenter {
   }
   public getHeight(): number {
     return this.height * this.scaleY;
+  }
+
+  setCoords() {
+    let strokeWidth = this.strokeWidth > 1 ? this.strokeWidth : 0,
+      padding = this.padding,
+      radian = Util.degreesToRadians(this.angle);
+
+    this.currentWidth = (this.width + strokeWidth) * this.scaleX + padding * 2;
+    this.currentHeight =
+      (this.height + strokeWidth) * this.scaleY + padding * 2;
+
+    // 物体中心点到顶点的斜边长度
+    let _hypotenuse = Math.sqrt(
+      Math.pow(this.currentWidth / 2, 2) + Math.pow(this.currentHeight / 2, 2),
+    );
+    let _angle = Math.atan(this.currentHeight / this.currentWidth);
+    // let _angle = Math.atan2(this.currentHeight, this.currentWidth);
+
+    // offset added for rotate and scale actions
+    let offsetX = Math.cos(_angle + radian) * _hypotenuse,
+      offsetY = Math.sin(_angle + radian) * _hypotenuse,
+      sinTh = Math.sin(radian),
+      cosTh = Math.cos(radian);
+
+    let coords = this.getCenterPoint();
+    let tl = {
+      x: coords.x - offsetX,
+      y: coords.y - offsetY,
+    };
+    let tr = {
+      x: tl.x + this.currentWidth * cosTh,
+      y: tl.y + this.currentWidth * sinTh,
+    };
+    let br = {
+      x: tr.x - this.currentHeight * sinTh,
+      y: tr.y + this.currentHeight * cosTh,
+    };
+    let bl = {
+      x: tl.x - this.currentHeight * sinTh,
+      y: tl.y + this.currentHeight * cosTh,
+    };
+    let ml = {
+      x: tl.x - (this.currentHeight / 2) * sinTh,
+      y: tl.y + (this.currentHeight / 2) * cosTh,
+    };
+    let mt = {
+      x: tl.x + (this.currentWidth / 2) * cosTh,
+      y: tl.y + (this.currentWidth / 2) * sinTh,
+    };
+    let mr = {
+      x: tr.x - (this.currentHeight / 2) * sinTh,
+      y: tr.y + (this.currentHeight / 2) * cosTh,
+    };
+    let mb = {
+      x: bl.x + (this.currentWidth / 2) * cosTh,
+      y: bl.y + (this.currentWidth / 2) * sinTh,
+    };
+    let mtr = {
+      x: tl.x + (this.currentWidth / 2) * cosTh,
+      y: tl.y + (this.currentWidth / 2) * sinTh,
+    };
+
+    // clockwise
+    this.oCoords = { tl, tr, br, bl, ml, mt, mr, mb, mtr };
+
+    // set coordinates of the draggable boxes in the corners used to scale/rotate the image
+    this._setCornerCoords();
+
+    return this;
+  }
+
+  /** 获取物体中心点 */
+  getCenterPoint() {
+    return this.translateToCenterPoint(
+      new Point(this.left, this.top),
+      this.originX,
+      this.originY,
+    );
+  }
+
+  /** 将中心点移到变换基点 */
+  translateToCenterPoint(
+    point: Point,
+    originX: string,
+    originY: string,
+  ): Point {
+    let cx = point.x,
+      cy = point.y;
+
+    if (originX === 'left') {
+      cx = point.x + this.getWidth() / 2;
+    } else if (originX === 'right') {
+      cx = point.x - this.getWidth() / 2;
+    }
+
+    if (originY === 'top') {
+      cy = point.y + this.getHeight() / 2;
+    } else if (originY === 'bottom') {
+      cy = point.y - this.getHeight() / 2;
+    }
+    const p = new Point(cx, cy);
+    if (this.angle) {
+      return Util.rotatePoint(p, point, Util.degreesToRadians(this.angle));
+    } else {
+      return p;
+    }
+  }
+
+  _setCornerCoords() {}
+
+  setActive(active: boolean = false): FabricObject {
+    this.active = !!active;
+    return this;
+  }
+
+  getAngle() {}
+
+  public get(prop) {
+    return this[prop];
+  }
+
+  public set(prop, value) {
+    this[prop] = value;
   }
 }

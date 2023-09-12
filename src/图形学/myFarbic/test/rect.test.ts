@@ -13,18 +13,6 @@ const myFarbic = new Canvas(canvas, {
   height: 1000,
 });
 
-const rect = new Rect({
-  top: 100,
-  left: 100,
-  width: 100,
-  height: 100,
-  stroke: 'black',
-  fill: 'white',
-});
-
-myFarbic.add(rect);
-
-debugger;
 const rect2 = new Rect({
   top: 100,
   left: 100,
@@ -36,3 +24,14 @@ const rect2 = new Rect({
   scaleY: 2,
 });
 myFarbic.add(rect2);
+
+const rect = new Rect({
+  top: 100,
+  left: 100,
+  width: 100,
+  height: 100,
+  stroke: 'black',
+  fill: 'white',
+});
+
+myFarbic.add(rect);

@@ -126,8 +126,3 @@ export interface IAnimationOption {
   duration?: number;
   abort?: Function;
 }
-
-export interface Point {
-  x: number;
-  y: number;
-}

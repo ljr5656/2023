@@ -46,4 +46,12 @@ export class Util {
   static removeListener(element, eventName, handler) {
     element.removeEventListener(eventName, handler, false);
   }
+
+  static removeFromArray(array: any[], value: any) {
+    let idx = array.indexOf(value);
+    if (idx !== -1) {
+      array.splice(idx, 1);
+    }
+    return array;
+  }
 }
