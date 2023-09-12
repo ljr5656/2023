@@ -1,3 +1,3 @@
 //#region myFarbic
-import './图形学/myFarbic/test/rect.test';
+import './图形学/myFabric/test/canvas.test';
 //#endregion
