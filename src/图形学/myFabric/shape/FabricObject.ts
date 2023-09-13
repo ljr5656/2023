@@ -1,3 +1,4 @@
+import { EventEmitter } from '../EventEmitter';
 import { Util } from '../Util';
 import { ClassPropsToOptions, EFabrictObjecType } from '../type';
 import { Rect } from './Rect';
@@ -7,7 +8,7 @@ type IFabricObjectOptions = ClassPropsToOptions<
   keyof FabricObject
 >;
 
-export class FabricObject {
+export class FabricObject extends EventEmitter {
   public type: string = EFabrictObjecType.FabricObject;
   public visible: boolean = true;
   public active: boolean = false;
@@ -31,6 +32,7 @@ export class FabricObject {
   //#endregion
 
   constructor(options: IFabricObjectOptions) {
+    super();
     this.initialize(options);
   }
   initialize(options) {
