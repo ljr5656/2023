@@ -5,7 +5,7 @@ export enum ECursor {
   POINTER = 'pointer',
 }
 export type ClassPropsToOptions<Class, Props extends keyof Class> = {
-  [key in Props]: Class[key];
+  [key in Props]: Partial<Class[key]>;
 };
 
 export enum EFabrictObjecType {

@@ -66,7 +66,11 @@ export class Canvas {
     return this;
   }
 
-  public renderAll() {}
+  public renderAll() {
+    this._objects.forEach((object) => {
+      object.render(this.olCtx);
+    });
+  }
 
   private _draw(ctx: CanvasRenderingContext2D) {}
 }
