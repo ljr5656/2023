@@ -12,4 +12,5 @@ export enum EFabrictObjecType {
   FabricObject = 'object',
   Rect = 'rect',
   Image = 'image',
+  Ellipse = 'ellipse',
 }
