@@ -95,5 +95,62 @@ export class FabricObject {
     ctx.strokeRect(-p / 2, -p / 2, w + p, h + p);
     ctx.restore();
   }
-  drawControls(ctx: CanvasRenderingContext2D) {}
+  drawControls(ctx: CanvasRenderingContext2D) {
+    const {
+      padding: p,
+      width: w,
+      height: h,
+      boundingBoxStroke,
+      boundingBoxStrokeWidth,
+    } = this;
+    ctx.save();
+    ctx.strokeStyle = boundingBoxStroke;
+    ctx.lineWidth = boundingBoxStrokeWidth;
+    ctx.fillStyle = boundingBoxStroke;
+    const len = 10;
+    const len2 = len / 2;
+    const p2 = p / 2;
+    const p4 = p / 4;
+    const w2 = w / 2;
+    const h2 = h / 2;
+
+    let _x, _y;
+    _x = -p2 - len2;
+    _y = -p2 - len2;
+    ctx.fillRect(_x, _y, len, len); // 左上
+
+    _x = w + len2;
+    _y = -p2 - len2;
+    ctx.fillRect(_x, _y, len, len); // 右上
+
+    _x = w + len2;
+    _y = h + len2;
+    ctx.fillRect(_x, _y, len, len); // 右下
+
+    _x = -p2 - len2;
+    _y = h + len2;
+    ctx.fillRect(_x, _y, len, len); // 左下
+
+    _x = -p2 - len2;
+    _y = h2 - p4;
+    ctx.fillRect(_x, _y, len, len); // 左中
+
+    _x = w2 - p4;
+    _y = -p2 - len2;
+    ctx.fillRect(_x, _y, len, len); // 上中
+
+    _x = w + len2;
+    _y = h2 - p4;
+    ctx.fillRect(_x, _y, len, len); // 右中
+
+    _x = w2 - p4;
+    _y = h + len2;
+    ctx.fillRect(_x, _y, len, len); // 下中
+
+    _x = w2 - p4;
+    _y = -p2 - len2 - 20;
+    ctx.strokeRect(_x, _y, len, len); // 旋转点
+
+    ctx.restore();
+  }
 }
