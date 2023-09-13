@@ -80,14 +80,10 @@ export class FabricObject {
   }
 
   drawBoundingBox(ctx: CanvasRenderingContext2D) {
-    const {
-      padding: p,
-      width: w,
-      height: h,
-      boundingBoxStroke,
-      boundingBoxStrokeWidth,
-    } = this;
+    let { padding: p, boundingBoxStroke, boundingBoxStrokeWidth } = this;
     ctx.save();
+    const w = this.getWidth();
+    const h = this.getHeight();
     ctx.globalAlpha = this.moving ? 0.5 : 1; // 物体变换的时候使其透明度减半，提升用户体验
     ctx.strokeStyle = boundingBoxStroke;
     ctx.lineWidth = boundingBoxStrokeWidth;
@@ -96,23 +92,22 @@ export class FabricObject {
     ctx.restore();
   }
   drawControls(ctx: CanvasRenderingContext2D) {
-    const {
-      padding: p,
-      width: w,
-      height: h,
-      boundingBoxStroke,
-      boundingBoxStrokeWidth,
-    } = this;
+    let { padding: p, boundingBoxStroke, boundingBoxStrokeWidth } = this;
     ctx.save();
+    ctx.scale(1 / this.scaleX, 1 / this.scaleY); // 抵消transform的scale
+
     ctx.strokeStyle = boundingBoxStroke;
     ctx.lineWidth = boundingBoxStrokeWidth;
     ctx.fillStyle = boundingBoxStroke;
+
+    const w = this.getWidth();
+    const h = this.getHeight();
+    const w2 = w / 2;
+    const h2 = h / 2;
     const len = 10;
     const len2 = len / 2;
     const p2 = p / 2;
     const p4 = p / 4;
-    const w2 = w / 2;
-    const h2 = h / 2;
 
     let _x, _y;
     _x = -p2 - len2;
@@ -152,5 +147,13 @@ export class FabricObject {
     ctx.strokeRect(_x, _y, len, len); // 旋转点
 
     ctx.restore();
+  }
+
+  getWidth(): number {
+    return this.width * this.scaleX;
+  }
+
+  getHeight(): number {
+    return this.height * this.scaleY;
   }
 }

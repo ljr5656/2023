@@ -15,6 +15,8 @@ const rect = new Rect({
   width: 200,
   height: 200,
   active: true,
+  scaleX: 2,
+  scaleY: 2,
 });
 
 fabric.add(rect);
