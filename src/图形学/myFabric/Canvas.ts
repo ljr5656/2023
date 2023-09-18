@@ -22,6 +22,11 @@ export class Canvas {
   protected olCtx: CanvasRenderingContext2D; // 对象层ctx
   protected slCtx: CanvasRenderingContext2D; // 选择层ctx
 
+  private scaleX: number = 1;
+  private scaleY: number = 1;
+  private translateX: number = 0;
+  private translateY: number = 0;
+
   private _objects: FabricObject[] = [];
 
   currentTarget: FabricObject | undefined;
@@ -81,9 +86,19 @@ export class Canvas {
     this.renderObjectLayer();
     this.renderSelectionLayer();
   }
+
+  transform(ctx: CanvasRenderingContext2D) {
+    const { translateX: x, translateY: y, scaleX, scaleY } = this;
+    ctx.translate(x, y);
+    ctx.scale(scaleX, scaleY);
+  }
   renderObjectLayer() {
     const ctx = this.olCtx;
     this.clearContext(ctx);
+
+    ctx.save();
+    this.transform(ctx);
+
     this._objects.forEach((object) => {
       object.render(ctx);
       if (object.active) {
@@ -93,12 +108,17 @@ export class Canvas {
     });
     this.currentTarget?.drawBoundingBox(ctx);
     this.currentTarget?.drawControls(ctx);
+
+    ctx.restore();
   }
 
   renderSelectionLayer() {
     const ctx = this.slCtx;
     this.clearContext(ctx);
+    ctx.save();
+    this.transform(ctx);
     this._selectionFGroup?.render(ctx);
+    ctx.restore();
   }
 
   _initEvents() {
@@ -119,6 +139,33 @@ export class Canvas {
       'mouseup',
       this._onMouseup.bind(this),
     );
+
+    window.addEventListener('keydown', (e: KeyboardEvent) => {
+      switch (e.key) {
+        case 'a':
+          this.translateX -= 50;
+          break;
+        case 'd':
+          this.translateX += 50;
+          break;
+        case 'w':
+          this.translateY -= 50;
+          break;
+        case 's':
+          this.translateY -= 50;
+          break;
+        case 'q':
+          this.scaleX -= 0.1;
+          this.scaleY -= 0.1;
+          break;
+        case 'e':
+          this.scaleX += 0.1;
+          this.scaleY += 0.1;
+          break;
+      }
+      console.log(this.translateX, this.translateY);
+      this.renderAll();
+    });
   }
 
   _onMouseMove(e: MouseEvent) {
