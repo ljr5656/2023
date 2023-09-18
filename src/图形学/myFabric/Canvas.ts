@@ -145,7 +145,7 @@ export class Canvas {
         this._selectionFGroup.x = x;
         this._selectionFGroup.y = y;
         this._selectionFGroup.width = clientX - x;
-        this._selectionFGroup.height = clientX - y;
+        this._selectionFGroup.height = clientY - y;
       }
     }
     this.renderSelectionLayer();
