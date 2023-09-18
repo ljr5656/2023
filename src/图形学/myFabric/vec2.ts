@@ -47,4 +47,10 @@ export class vec2 {
   cross(other: vec2): number {
     return this.x * other.y - this.y * other.x;
   }
+
+  multiplyMatrix(matrix: number[]): vec2 {
+    const resultX = this.x * matrix[0] + this.y * matrix[1] + matrix[2];
+    const resultY = this.x * matrix[3] + this.y * matrix[4] + matrix[5];
+    return new vec2(resultX, resultY);
+  }
 }
