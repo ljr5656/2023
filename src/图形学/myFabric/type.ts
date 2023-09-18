@@ -13,4 +13,5 @@ export enum EFabrictObjecType {
   Rect = 'rect',
   Image = 'image',
   Ellipse = 'ellipse',
+  Group = 'group',
 }

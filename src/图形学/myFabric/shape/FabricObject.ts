@@ -1,4 +1,6 @@
 import { EventEmitter } from '../EventEmitter';
+import { Intersection } from '../Intersection';
+import { Point } from '../Point';
 import { Util } from '../Util';
 import { ClassPropsToOptions, EFabrictObjecType } from '../type';
 import { Rect } from './Rect';
@@ -15,6 +17,7 @@ export class FabricObject extends EventEmitter {
   public moving: boolean = false;
   public x: number = 0;
   public y: number = 0;
+  public z: number = 0; // z-index
   public width: number = 0;
   public height: number = 0;
   public scaleX: number = 1;
@@ -27,6 +30,8 @@ export class FabricObject extends EventEmitter {
 
   public boundingBoxStroke: string = 'blue';
   public boundingBoxStrokeWidth: number = 1;
+
+  public bBoxPoints: Point[] = [];
 
   //#region
   //#endregion
@@ -62,11 +67,6 @@ export class FabricObject extends EventEmitter {
 
     this._render(ctx);
 
-    if (this.active) {
-      this.drawBoundingBox(ctx);
-      this.drawControls(ctx);
-    }
-
     ctx.restore();
   }
 
@@ -84,9 +84,11 @@ export class FabricObject extends EventEmitter {
   drawBoundingBox(ctx: CanvasRenderingContext2D) {
     let { padding: p, boundingBoxStroke, boundingBoxStrokeWidth } = this;
     ctx.save();
+    this.transform(ctx);
+
     const w = this.getWidth();
     const h = this.getHeight();
-    ctx.globalAlpha = this.moving ? 0.5 : 1; // 物体变换的时候使其透明度减半，提升用户体验
+
     ctx.strokeStyle = boundingBoxStroke;
     ctx.lineWidth = boundingBoxStrokeWidth;
     ctx.scale(1 / this.scaleX, 1 / this.scaleY); // 抵消transform的scale
@@ -96,6 +98,8 @@ export class FabricObject extends EventEmitter {
   drawControls(ctx: CanvasRenderingContext2D) {
     let { padding: p, boundingBoxStroke, boundingBoxStrokeWidth } = this;
     ctx.save();
+    this.transform(ctx);
+
     ctx.scale(1 / this.scaleX, 1 / this.scaleY); // 抵消transform的scale
 
     ctx.strokeStyle = boundingBoxStroke;
@@ -157,5 +161,58 @@ export class FabricObject extends EventEmitter {
 
   getHeight(): number {
     return this.height * this.scaleY;
+  }
+
+  _findCrossPoints(a1: Point, a2: Point): number {
+    const { width: w, height: h } = this;
+    this.bBoxPoints = [
+      new Point(0, 0),
+      new Point(w, 0),
+      new Point(w, h),
+      new Point(0, h),
+    ].map((point) => this.getPointAfterTransform(point));
+    let xcount = Intersection.intersectLinePolygon(a1, a2, this.bBoxPoints)
+      .points.length;
+
+    return xcount;
+  }
+
+  getPointAfterTransform(p: Point): Point {
+    const matrix = this.getTransfromMatrix();
+    const point = p.multiplyMatrix(matrix);
+    return point;
+  }
+
+  getTransfromMatrix(): Array<number> {
+    const { x: tx, y: ty, scaleX: sx, scaleY: sy, angle } = this;
+    const cosAngle = Math.cos((angle * Math.PI) / 180);
+    const sinAngle = Math.sin((angle * Math.PI) / 180);
+
+    // 构建变换矩阵
+    const matrix: number[] = [
+      sx * cosAngle,
+      -sy * sinAngle,
+      tx,
+      sx * sinAngle,
+      sy * cosAngle,
+      ty,
+      0,
+      0,
+      1,
+    ];
+
+    return matrix;
+  }
+
+  trigerActive(active?: boolean) {
+    if (active === undefined) {
+      this.active = !this.active;
+    } else {
+      this.active = active;
+    }
+  }
+
+  setZ(z: number) {
+    this.z = z;
   }
 }
