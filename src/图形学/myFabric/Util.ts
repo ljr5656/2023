@@ -21,4 +21,20 @@ export class Util {
   static degreesToRadians(degrees: number): number {
     return (degrees * Math.PI) / 180;
   }
+
+  static addListener(
+    el: HTMLElement,
+    type: string,
+    handler: EventListenerOrEventListenerObject,
+  ) {
+    el.addEventListener(type, handler, false);
+  }
+
+  static removeListener(
+    el: HTMLElement,
+    type: string,
+    handler: EventListenerOrEventListenerObject,
+  ) {
+    el.removeEventListener(type, handler, false);
+  }
 }
