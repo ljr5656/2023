@@ -104,4 +104,17 @@ export class Vec3 {
   public lerp(target: Vec3, alpha: number): Vec3 {
     return new Vec3(0, 0, 0);
   }
+
+  // 向量投影
+  public projectOnto(other: Vec3): Vec3 {
+    const dotProduct = this.dot(other);
+    const magnitudeSquared = other.length() ** 2;
+
+    if (magnitudeSquared === 0) {
+      throw new Error('Projection onto a zero-length vector is undefined.');
+    }
+
+    const scale = dotProduct / magnitudeSquared;
+    return other.multiplyScalar(scale);
+  }
 }

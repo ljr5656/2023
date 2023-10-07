@@ -16,8 +16,9 @@ export class Editor {
     this.graphicsCtx = this.graphicsCanvas.getContext(
       '2d',
     ) as CanvasRenderingContext2D;
-    this.graphicsCanvas.width = this.container.clientWidth;
-    this.graphicsCanvas.height = this.container.clientHeight;
+    debugger;
+    this.graphicsCanvas.width = this.container.offsetWidth;
+    this.graphicsCanvas.height = this.container.offsetHeight;
     this.container.appendChild(this.graphicsCanvas);
   }
 
@@ -26,8 +27,13 @@ export class Editor {
     this.eventCtx = this.eventCanvas.getContext(
       '2d',
     ) as CanvasRenderingContext2D;
-    this.eventCanvas.width = this.container.clientWidth;
-    this.eventCanvas.height = this.container.clientHeight;
+    this.eventCanvas.width = this.container.offsetWidth;
+    this.eventCanvas.height = this.container.offsetHeight;
+    this.eventCanvas.style.cssText = `
+      position: absolute;
+      top: 0;
+      left: 0;
+    `;
     this.container.appendChild(this.eventCanvas);
   }
 }
