@@ -15,10 +15,11 @@ export interface GraphOptions {
 }
 export class Graph {
   type: GraphType = GraphType.graph;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
+  id: number = 0;
+  x: number = 0;
+  y: number = 0;
+  width: number = 0;
+  height: number = 0;
   fill: string = '#fff';
   stroke: string = '#000';
 
@@ -26,7 +27,9 @@ export class Graph {
     Utils.setOptions<GraphOptions>(this, options);
   }
 
-  _render(ctx: CanvasRenderingContext2D) {}
+  _render(ctx: CanvasRenderingContext2D) {
+    throw new Error('not implemented');
+  }
 
   _transform(ctx: CanvasRenderingContext2D) {}
 
