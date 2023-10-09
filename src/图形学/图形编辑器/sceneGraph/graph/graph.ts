@@ -10,8 +10,8 @@ export interface GraphOptions {
   y: number;
   width: number;
   height: number;
-  fill: string;
-  stroke: string;
+  fill?: string;
+  stroke?: string;
 }
 export class Graph {
   type: GraphType = GraphType.graph;
@@ -22,7 +22,7 @@ export class Graph {
   height: number = 0;
   fill: string = '#fff';
   stroke: string = '#000';
-
+  lineWidth: number = 1;
   constructor(options: GraphOptions) {
     Utils.setOptions<GraphOptions>(this, options);
   }
@@ -33,10 +33,15 @@ export class Graph {
 
   _transform(ctx: CanvasRenderingContext2D) {}
 
-  render(ctx: CanvasRenderingContext2D) {
+  render = Utils.rafThrottle(([ctx]) => {
     ctx.save();
     this._transform(ctx);
+    ctx.fillStyle = this.fill;
+    ctx.strokeStyle = this.stroke;
+    ctx.lineWidth = this.lineWidth;
     this._render(ctx);
+    ctx.fill();
+    ctx.stroke();
     ctx.restore();
-  }
+  });
 }
