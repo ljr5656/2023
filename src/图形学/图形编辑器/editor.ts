@@ -1,4 +1,6 @@
 import { SceneGraph } from './sceneGraph/sceneGraph';
+import { Setting } from './settings';
+import { ViewportManager } from './viewportManager';
 
 export class Editor {
   public container: HTMLElement;
@@ -8,6 +10,8 @@ export class Editor {
   public eventCtx!: CanvasRenderingContext2D;
 
   public sceneGraph: SceneGraph;
+  public setting: Setting;
+  public viewportManager: ViewportManager;
 
   constructor(container: HTMLElement) {
     this.container = container;
@@ -15,8 +19,9 @@ export class Editor {
     this._createEventCanvas();
 
     this.sceneGraph = new SceneGraph(this);
+    this.setting = new Setting();
+    this.viewportManager = new ViewportManager(this);
   }
-
   private _createGraphicsCanvas() {
     this.graphicsCanvas = document.createElement('canvas');
     this.graphicsCtx = this.graphicsCanvas.getContext(
