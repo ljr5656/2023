@@ -1,6 +1,7 @@
 import EventEmitter from '@/utils/eventEmitter';
 import { Graph } from './graph/graph';
 import { Editor } from '../editor';
+import { Utils } from '../utils';
 interface SceneGraphEvents {
   render(): void;
 }
@@ -43,23 +44,50 @@ export class SceneGraph {
     }
   }
 
-  render(ctx: CanvasRenderingContext2D) {
+  render(ctx: CanvasRenderingContext2D = this.editor.graphicsCtx) {
+    const { editor } = this;
+    const { viewportManager, zoomManager, setting } = editor;
+    const viewport = viewportManager.getViewport();
+    const zoom = zoomManager.getZoom();
     const { canvas } = ctx;
+
+    // 清空画布
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // 绘制背景色
     ctx.save();
-    ctx.fillStyle = '#eee';
+    ctx.fillStyle = setting.get('canvasBgColor');
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.restore();
-    this.children.forEach((element) => {
-      element.render(ctx);
-    });
+
+    // 场景坐标转换为视口坐标
+    const dpr = Utils.getDevicePixelRatio();
+    const dx = -viewport.x;
+    const dy = -viewport.y;
+    console.log('render zoom', zoom);
+    ctx.scale(dpr * zoom, dpr * zoom);
+    ctx.translate(dx, dy);
+
+    // this.children.forEach((element) => {
+    //   element.render(ctx);
+    // });
 
     ctx.save();
-    this._transform(ctx);
+    ctx.strokeStyle = '#000';
+    ctx.strokeRect(100, 100, 200, 200);
     ctx.restore();
+
+    ctx.save();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.scale(dpr, dpr);
+    ctx.restore();
+
+    // ctx.save();
+    // this._transform(ctx);
+    // ctx.restore();
   }
 
-  _transform(ctx: CanvasRenderingContext2D) {
+  _transform(ctx: CanvasRenderingContext2D = this.editor.graphicsCtx) {
     const { translateX, translateY, scaleX, scaleY } = this;
     ctx.save();
     ctx.translate(translateX, translateY);
@@ -72,17 +100,5 @@ export class SceneGraph {
   }
   off(eventName: 'render', handler: () => void) {
     this.eventEmitter.off(eventName, handler);
-  }
-
-  setTranslate(x: number = 0, y: number = 0) {
-    this.translateX = x;
-    this.translateY = y;
-    this.render(this.editor.graphicsCtx);
-  }
-
-  setScale(x: number = 1, y: number = 1) {
-    this.scaleX = x;
-    this.scaleY = y;
-    this.render(this.editor.graphicsCtx);
   }
 }

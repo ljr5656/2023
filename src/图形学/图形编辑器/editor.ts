@@ -1,6 +1,8 @@
+import { ActionManager } from './actionManager';
 import { SceneGraph } from './sceneGraph/sceneGraph';
 import { Setting } from './settings';
 import { ViewportManager } from './viewportManager';
+import { ZoomManager } from './zoomManager';
 
 export class Editor {
   public container: HTMLElement;
@@ -12,6 +14,8 @@ export class Editor {
   public sceneGraph: SceneGraph;
   public setting: Setting;
   public viewportManager: ViewportManager;
+  public zoomManager: ZoomManager;
+  public actionManager: ActionManager;
 
   constructor(container: HTMLElement) {
     this.container = container;
@@ -21,6 +25,8 @@ export class Editor {
     this.sceneGraph = new SceneGraph(this);
     this.setting = new Setting();
     this.viewportManager = new ViewportManager(this);
+    this.zoomManager = new ZoomManager(this);
+    this.actionManager = new ActionManager(this);
   }
   private _createGraphicsCanvas() {
     this.graphicsCanvas = document.createElement('canvas');

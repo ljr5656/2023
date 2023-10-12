@@ -1,1 +1,8 @@
-.container {}
+.container {
+  position: absolute;
+  left: 240px;
+  bottom: 0px;
+  border: 1px solid #eee;
+  margin: 20px;
+  display: flex;
+}

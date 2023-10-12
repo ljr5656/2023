@@ -16,7 +16,7 @@ export class Setting {
     //#endregion
 
     //#region zoom
-    zoomStep: 0.27, // 缩放比例步长
+    zoomStep: 0.2, // 缩放比例步长
     zoomMax: 256,
     zoomMin: 0.02,
     //#endregion

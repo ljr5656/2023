@@ -1,4 +1,12 @@
-#container {
-  width: 800px;
-  height: 800px;
+.container {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.body {
+  flex: 1;
+  width: 100%;
+  display: flex;
 }

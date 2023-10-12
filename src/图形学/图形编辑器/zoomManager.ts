@@ -47,6 +47,7 @@ export class ZoomManager {
   zoomIn(cx?: number, cy?: number) {
     const zoomStep = this.editor.setting.get('zoomStep');
     const prevZoom = this._zoom;
+    console.log('prezoom', prevZoom);
     const zoom = Math.min(
       Utils.remainDecimals(prevZoom * (1 + zoomStep)),
       this.editor.setting.get('zoomMax'),
@@ -56,10 +57,28 @@ export class ZoomManager {
     this.adjustScroll(cx, cy, prevZoom);
   }
 
-  zoomOut() {}
+  zoomOut(cx?: number, cy?: number) {
+    const zoomStep = this.editor.setting.get('zoomStep');
+    const prevZoom = this._zoom;
+    console.log('prezoom', prevZoom);
+    // debugger;
+    const zoom = Math.max(
+      Utils.remainDecimals(prevZoom * (1 - zoomStep)),
+      this.editor.setting.get('zoomMin'),
+    );
+
+    this.setZoom(zoom);
+    this.adjustScroll(cx, cy, prevZoom);
+  }
 
   reset() {
     this.setZoom(1);
+    const viewportManager = this.editor.viewportManager;
+    const viewport = viewportManager.getViewport();
+    viewportManager.setViewport({
+      x: -viewport.width / 2,
+      y: -viewport.height / 2,
+    });
   }
 
   adjustScroll(

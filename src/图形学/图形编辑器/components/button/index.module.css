@@ -1,0 +1,28 @@
+.button {
+  width: 40px;
+  height: 40px;
+  background-color: #fff;
+  border: 1px solid #000;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.group-container {
+  display: flex;
+}
+
+.gourp-middle {
+  border-radius: 0;
+}
+
+.group-left {
+  border-radius: 10px 0 0 10px;
+}
+
+.group-right {
+  border-radius: 0 10px 10px 0;
+}
+
+.button:hover {
+  background-color: #eee;
+}
